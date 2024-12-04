@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>ToDo List</h1>
+
+    <form id="todo-form">
+        <input type="text" id="todo-input" placeholder="Add a new todo" required>
+        <button type="submit">Add</button>
+    </form>
+
+    <ul id="todo-list"></ul>
+
+    <script>
+        const apiUrl = '/todos/'; // Adjust the URL based on your Django setup
+
+        // Function to fetch and display todos
+        async function fetchTodos() {
+            const response = await fetch(apiUrl);
+            const todos = await response.json();
+            const todoList = document.getElementById('todo-list');
+            todoList.innerHTML = '';
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.textContent = todo.title; // Assuming 'title' is the field in your Todo model
+                todoList.appendChild(li);
+            });
+        }
+
+        // Function to handle form submission
+        document.getElementById('todo-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const input = document.getElementById('todo-input');
+            const newTodo = { title: input.value }; // Adjust based on your model fields
+            
+            await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newTodo),
+            });
+            input.value = ''; // Clear the input field
+            fetchTodos(); // Refresh the todo list
+        });
+
+        // Initial fetch to display todos
+        fetchTodos();
+    </script>
+
+</body>
+</html>
